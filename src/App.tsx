@@ -7,6 +7,7 @@ import LoginPage from './components/LoginPage';
 import StoryPage from './components/StoryPage';
 import WordPage from './components/WordPage';
 import MyActivity from './components/MyActivity';
+import JoinPage from './components/JoinPage';
 
 
 const router = createBrowserRouter([
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/join",
+        element: <JoinPage />,
       }
 
     ],
