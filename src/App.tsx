@@ -8,6 +8,7 @@ import StoryPage from './components/StoryPage';
 import WordPage from './components/WordPage';
 import MyActivity from './components/MyActivity';
 import JoinPage from './components/JoinPage';
+import FriendPage from './components/FriendPage';
 
 
 const router = createBrowserRouter([
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "/join",
         element: <JoinPage />,
+      },
+      {
+        path: "/friendpage",
+        element: <FriendPage />,
       }
 
     ],
