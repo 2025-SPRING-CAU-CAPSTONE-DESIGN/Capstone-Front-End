@@ -21,7 +21,7 @@ const Navbar = () => {
         <Link to='/wordpage' className="text-white hover:text-green-300 transition-colors">
           문장만들기
         </Link>
-        <Link to='/gamepage' className="text-white  hover:text-green-300 transition-colors">
+        <Link to='/gameLoading' className="text-white  hover:text-green-300 transition-colors">
           단어게임
         </Link>
         <Link to='/myactivity' className="text-white  hover:text-green-300 transition-colors">

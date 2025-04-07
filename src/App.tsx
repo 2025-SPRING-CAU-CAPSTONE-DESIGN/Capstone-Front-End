@@ -2,13 +2,14 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "./layouts/Root-Layout";
 import Home from './components/Home';
-import GamePage from './components/GamePage';
 import LoginPage from './components/LoginPage';
 import StoryPage from './components/StoryPage';
 import WordPage from './components/WordPage';
 import MyActivity from './components/MyActivity';
 import JoinPage from './components/JoinPage';
 import FriendPage from './components/FriendPage';
+import GameLoadingPage from './components/GameLoadingPage';
+import GamePage from './components/GamePage';
 
 
 const router = createBrowserRouter([
@@ -31,8 +32,8 @@ const router = createBrowserRouter([
         element: <WordPage />,
       },
       {
-        path: "/gamepage",
-        element: <GamePage />,
+        path: "/gameLoading",
+        element: <GameLoadingPage />,
       },
       {
         path: "/myactivity",
@@ -49,7 +50,11 @@ const router = createBrowserRouter([
       {
         path: "/friendpage",
         element: <FriendPage />,
-      }
+      },
+      {
+        path: "/gamepage",
+        element: <GamePage />,
+      },
 
     ],
   },
