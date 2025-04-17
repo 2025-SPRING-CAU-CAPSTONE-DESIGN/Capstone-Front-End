@@ -10,7 +10,7 @@ import JoinPage from './components/JoinPage';
 import FriendPage from './components/FriendPage';
 import GameLoadingPage from './components/GameLoadingPage';
 import GamePage from './components/GamePage';
-import TestJelly from './components/TestJelly';
+import ForestPage from './components/ForestPage';
 
 
 const router = createBrowserRouter([
@@ -57,9 +57,9 @@ const router = createBrowserRouter([
         element: <GamePage />,
       },
       {
-        path:"/test",
-        element: <TestJelly />,
-      }
+        path: "/forest",
+        element: <ForestPage />,
+      },
 
     ],
   },
