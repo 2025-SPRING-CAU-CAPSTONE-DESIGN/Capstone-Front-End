@@ -1,5 +1,5 @@
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,css}"],
   theme: {
     extend: {
       fontFamily: {
@@ -9,6 +9,7 @@ export default {
       animation: {
         'ping-fast': 'ping-fast 0.5s ease-out',
         'shake': 'shake 0.4s ease-in-out',
+        'shimmer': 'shimmer 4s linear infinite',
       },
       keyframes: {
         'ping-fast': {
@@ -23,6 +24,13 @@ export default {
           '60%': { transform: 'translateX(-4px)' },
           '80%': { transform: 'translateX(4px)' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+      backgroundSize: {
+        shimmer: '50% 100%',
       },
     },
   },
