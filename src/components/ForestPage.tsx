@@ -11,16 +11,16 @@ import img9 from '../assets/Group 20.svg';
 import img10 from '../assets/Group 21.svg';
 
 const forestImages = [
-  { id: 1, src: img1, alt: "Story 1" },
-  { id: 2, src: img2, alt: "Story 2" },
-  { id: 3, src: img3, alt: "Story 3" },
-  { id: 4, src: img4, alt: "Story 4" },
-  { id: 5, src: img5, alt: "Story 5" },
-  { id: 6, src: img6, alt: "Story 6" },
-  { id: 7, src: img7, alt: "Story 7" },
-  { id: 8, src: img8, alt: "Story 8" },
-  { id: 9, src: img9, alt: "Story 9" },
-  { id: 10, src: img10, alt: "Story 10" }
+  { id: 1, src: img1, label: "1단계 - 새싹나무" },
+  { id: 2, src: img2, label: "2단계 - 도토리나무" },
+  { id: 3, src: img3, label: "3단계 - 파란꽃나무" },
+  { id: 4, src: img4, label: "4단계 - 빨간꽃나무" },
+  { id: 5, src: img5, label: "5단계 - 사과나무" },
+  { id: 6, src: img6, label: "6단계 - 딸기나무" },
+  { id: 7, src: img7, label: "7단계 - 체리나무" },
+  { id: 8, src: img8, label: "8단계 - 복숭아나무" },
+  { id: 9, src: img9, label: "9단계 - 사탕나무" },
+  { id: 10, src: img10, label: "10단계 - 별나무" },
 ];
 
 const ForestPage = () => {
@@ -37,22 +37,26 @@ const ForestPage = () => {
       </div>
 
       {/* ✅ 메인 콘텐츠 */}
-      <div className="relative z-10 flex items-center min-h-screen px-10">
-        <div className="flex gap-6">
-          {forestImages.map((img) => (
-            <div
-              key={img.id}
-              className="flex-shrink-0 w-[30rem] h-[30rem] overflow-hidden shadow-lg"
-            >
-              <img
-                src={img.src}
-                alt={img.alt}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
+      <div className="relative z-10 flex items-center min-h-screen px-10 mt-20">
+  <div className="flex gap-6">
+    {forestImages.map((img) => (
+      <div
+        key={img.id}
+        className="flex-shrink-0 w-[30rem] h-[40rem] overflow-hidden shadow-lg flex flex-col items-center"
+      >
+        <img
+          src={img.src}
+          alt={img.label}
+          className="w-[20rem] h-[30rem] rounded-xl shadow-lg object-cover"
+        />
+        <p className="text-white mt-6 text-2xl font-bold text-center">
+          {img.label}
+        </p>
       </div>
+    ))}
+  </div>
+</div>
+
     </div>
   );
 };

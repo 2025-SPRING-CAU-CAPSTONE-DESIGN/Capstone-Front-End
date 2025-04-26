@@ -4,13 +4,14 @@ import RootLayout from "./layouts/Root-Layout";
 import Home from './components/Home';
 import LoginPage from './components/LoginPage';
 import StoryPage from './components/StoryPage';
-import WordPage from './components/WordPage';
+import SentencePage from './components/SentencePage';
 import MyActivity from './components/MyActivity';
 import JoinPage from './components/JoinPage';
 import FriendPage from './components/FriendPage';
 import GameLoadingPage from './components/GameLoadingPage';
 import GamePage from './components/GamePage';
 import ForestPage from './components/ForestPage';
+import SentenceLoadingPage from './components/SentenceLoadingPage';
 
 
 const router = createBrowserRouter([
@@ -29,12 +30,16 @@ const router = createBrowserRouter([
         element: <StoryPage />,
       },
       {
-        path: "/wordpage",
-        element: <WordPage />,
+        path: "/sentencepage",
+        element: <SentencePage />,
       },
       {
         path: "/gameLoading",
         element: <GameLoadingPage />,
+      },
+      {
+        path: "/sentenceLoading",
+        element: <SentenceLoadingPage />,
       },
       {
         path: "/myactivity",

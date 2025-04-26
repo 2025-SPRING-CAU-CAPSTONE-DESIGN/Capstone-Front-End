@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import forestBg from "../assets/forest_bg2.jpg";
 
 const JoinPage = () => {
   const [nickname, setNickname] = useState("");
@@ -31,7 +32,17 @@ const JoinPage = () => {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 font-ansim">
-      <div className="bg-gray-900 p-10 rounded-2xl shadow-xl w-full max-w-md">
+
+      {/* 고정된 배경 이미지 */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img
+          src={forestBg}
+          alt="Forest Background"
+          className="w-full h-full object-cover opacity-20"
+        />
+      </div>
+
+      <div className="bg-gray-900/70 p-10 rounded-2xl shadow-xl w-full max-w-md mt-10">
         <h1 className="text-green-400 text-3xl font-bold mb-6 text-center font-ansim2">
           회원가입
         </h1>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import forestBg from "../assets/forest_bg2.jpg"; // 배경 이미지
+import stone from "../assets/stone.png"; // 카드 배경 이미지
 
 const TOTAL_TIME = 90; // 1분 30초
 
@@ -116,39 +118,45 @@ const GamePage = () => {
 
   return (
     <div className="min-h-screen bg-black p-8 text-white font-ansim">
+      {/* 고정된 배경 이미지 */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img
+          src={forestBg}
+          alt="Forest Background"
+          className="w-full h-full object-cover opacity-20"
+        />
+      </div>
+
       <h1 className="text-green-400 text-3xl font-bold text-center font-ansim2 mb-8">
         단어 게임
       </h1>
 
       {/* 전체 줄 나눔 */}
-      <div className="flex gap-10 justify-center items-start">
+      <div className="flex gap-10 justify-center items-start mt-10">
         {/* 왼쪽: 단어 카드 */}
         <div className="grid grid-cols-4 gap-3">
           {shuffledWords.map((item) => (
             <button
-              key={item.word}
-              onClick={() => handleSelect("word", item.word)}
-              className={`w-[100px] h-[70px] bg-gray-800 rounded shadow text-lg hover:bg-green-500 transition-all
-          ${matched.includes(item.word) ? "opacity-0 pointer-events-none" : ""}
-          ${
-            selected?.type === "word" && selected.value === item.word
-              ? "ring-4 ring-green-400"
-              : ""
-          }
-          ${
-            justMatched && item.word === justMatched
-              ? "border-4 border-yellow-300 animate-ping-fast"
-              : ""
-          }
-          ${
-            wrongMatch === item.word
-              ? "border-4 border-red-500 animate-shake"
-              : ""
-          }
-        `}
-            >
-              {item.word}
-            </button>
+            key={item.word}
+            onClick={() => handleSelect("word", item.word)}
+            style={{
+              backgroundColor: "black",
+              backgroundImage: `url(${stone})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+            className={`w-[100px] h-[70px] rounded shadow text-lg brightness-100 hover:brightness-75 transition-all
+              ${matched.includes(item.word) ? "opacity-0 pointer-events-none" : ""}
+              ${selected?.type === "word" && selected.value === item.word ? "ring-4 ring-green-400" : ""}
+              ${justMatched && item.word === justMatched ? "border-4 border-yellow-300 animate-ping-fast" : ""}
+              ${wrongMatch === item.word ? "border-4 border-red-500 animate-shake" : ""}
+            `}
+          >
+            {item.word}
+          </button>
+          
+          
           ))}
         </div>
 
@@ -162,30 +170,38 @@ const GamePage = () => {
 
             return (
               <button
-                key={item.meaning}
-                onClick={() => handleSelect("meaning", item.meaning)}
-                className={`w-[250px] h-[48px] bg-gray-700 rounded shadow text-middle px-3 hover:bg-green-500 transition-all
-        ${isMatched ? "opacity-0 pointer-events-none" : ""}
-        ${
-          selected?.type === "meaning" && selected.value === item.meaning
-            ? "ring-4 ring-green-400"
-            : ""
-        }
-        ${
-          justMatched &&
-          item.meaning === words.find((w) => w.word === justMatched)?.meaning
-            ? "border-4 border-yellow-300 animate-ping-fast"
-            : ""
-        }
-        ${
-          wrongMatchMeaning === item.meaning
-            ? "border-4 border-red-500 animate-shake"
-            : ""
-        }
-      `}
-              >
-                {item.meaning}
-              </button>
+  key={item.meaning}
+  onClick={() => handleSelect("meaning", item.meaning)}
+  style={{
+    backgroundColor: "black",
+    backgroundImage: `url(${stone})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+  className={`w-[250px] h-[48px] rounded shadow text-middle px-3 brightness-100 hover:brightness-75 transition-all
+    ${isMatched ? "opacity-0 pointer-events-none" : ""}
+    ${
+      selected?.type === "meaning" && selected.value === item.meaning
+        ? "ring-4 ring-green-400"
+        : ""
+    }
+    ${
+      justMatched &&
+      item.meaning === words.find((w) => w.word === justMatched)?.meaning
+        ? "border-4 border-yellow-300 animate-ping-fast"
+        : ""
+    }
+    ${
+      wrongMatchMeaning === item.meaning
+        ? "border-4 border-red-500 animate-shake"
+        : ""
+    }
+  `}
+>
+  {item.meaning}
+</button>
+
             );
           })}
         </div>
