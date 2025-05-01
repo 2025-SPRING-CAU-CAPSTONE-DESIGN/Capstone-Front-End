@@ -8,6 +8,7 @@ const JoinPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordMismatch, setIsPasswordMismatch] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
 
   // 닉네임 중복 확인 (임시 로직)
   const handleCheckNickname = () => {
@@ -30,9 +31,42 @@ const JoinPage = () => {
     setIsPasswordMismatch(password !== value);
   };
 
+  const handleJoin = async () => {
+    if (isPasswordMismatch || !nickname || !password || !birthDate) {
+      alert("입력값을 모두 확인해주세요.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: nickname,
+          password: password,
+          passwordConfirm: confirmPassword,
+          birthDate: birthDate,
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        alert("회원가입 실패: " + (errJson.message || res.status));
+        return;
+      }
+
+      alert("회원가입 성공!");
+      // TODO: 여기서 로그인 페이지로 이동하거나 자동 로그인 시도 가능
+    } catch (err) {
+      alert("오류가 발생했습니다. 다시 시도해주세요.");
+      console.error(err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 font-ansim">
-
       {/* 고정된 배경 이미지 */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
@@ -108,13 +142,19 @@ const JoinPage = () => {
             <label className="text-white block mb-1">생년월일</label>
             <input
               type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
               className="w-full px-4 py-2 rounded bg-gray-800 text-white focus:outline-none"
             />
           </div>
 
           {/* 회원가입 버튼 */}
           <div className="mt-6">
-            <button className="w-full bg-green-500 hover:bg-green-400 text-white py-2 rounded text-lg font-bold">
+            <button
+              onClick={handleJoin}
+              disabled={isNicknameTaken || isPasswordMismatch}
+              className="w-full bg-green-500 hover:bg-green-400 text-white py-2 rounded text-lg font-bold"
+            >
               회원가입
             </button>
           </div>

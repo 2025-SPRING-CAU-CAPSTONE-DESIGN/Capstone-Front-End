@@ -1,45 +1,31 @@
 import { useEffect, useState } from "react";
-import forestBg from "../assets/forest_bg2.jpg"; // 배경 이미지
-import stone from "../assets/stone.png"; // 카드 배경 이미지
+import forestBg from "../assets/forest_bg2.jpg";
+import stone from "../assets/stone.png";
+import { useLocation } from "react-router-dom";
 
-const TOTAL_TIME = 90; // 1분 30초
+const TOTAL_TIME = 90;
 
 type WordItem = {
   word: string;
   meaning: string;
 };
 
-const words: WordItem[] = [
-  { word: "사과", meaning: "달콤한 빨간 과일" },
-  { word: "강아지", meaning: "작고 귀여운 동물" },
-  { word: "연필", meaning: "글을 쓸 때 쓰는 도구" },
-  { word: "학교", meaning: "공부하러 가는 곳" },
-  { word: "책상", meaning: "공부할 때 앉는 자리" },
-  { word: "우산", meaning: "비가 올 때 쓰는 것" },
-  { word: "자전거", meaning: "두 바퀴로 달리는 탈것" },
-  { word: "물고기", meaning: "물속에 사는 동물" },
-  { word: "텔레비전", meaning: "프로그램을 보는 전자제품" },
-  { word: "가방", meaning: "물건을 넣어 다니는 것" },
-  { word: "별", meaning: "밤하늘에서 반짝이는 것" },
-  { word: "눈", meaning: "하늘에서 내리는 하얀 것" },
-  { word: "코끼리", meaning: "코가 긴 큰 동물" },
-  { word: "우유", meaning: "소에서 나오는 흰 액체" },
-  { word: "냉장고", meaning: "음식을 차게 보관하는 기계" },
-  { word: "나무", meaning: "숲에 있는 초록 식물" },
-  { word: "자동차", meaning: "길 위를 달리는 탈것" },
-  { word: "시계", meaning: "시간을 알려주는 물건" },
-  { word: "바다", meaning: "넓고 푸른 물의 공간" },
-  { word: "모자", meaning: "머리에 쓰는 물건" },
-];
+type ApiWord = {
+  id: number;
+  term: string;
+  meaning: string;
+  difficulty: number;
+};
+
 
 const shuffle = <T,>(array: T[]): T[] =>
   [...array].sort(() => Math.random() - 0.5);
 
 const GamePage = () => {
-  const [shuffledWords, setShuffledWords] = useState(() => shuffle(words));
-  const [shuffledMeanings, setShuffledMeanings] = useState(() =>
-    shuffle(words)
-  );
+  const [words, setWords] = useState<WordItem[]>([]);
+  const [shuffledWords, setShuffledWords] = useState<WordItem[]>([]);
+  const [shuffledMeanings, setShuffledMeanings] = useState<WordItem[]>([]);
+
   const [selected, setSelected] = useState<{
     type: "word" | "meaning";
     value: string;
@@ -51,8 +37,71 @@ const GamePage = () => {
   const [wrongMatchMeaning, setWrongMatchMeaning] = useState<string | null>(
     null
   );
-  const [showModal, setShowModal] = useState<"timeout" | "success" | null>(null);
+  const [showModal, setShowModal] = useState<"timeout" | "success" | null>(
+    null
+  );
+  
+const location = useLocation();
+const [userLevel, setUserLevel] = useState<number | null>(null);
 
+// ✅ 1. 사용자 정보 받아서 level 가져오기
+useEffect(() => {
+  const fetchUserInfo = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    const res = await fetch("http://localhost:8080/user", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await res.json();
+    const levelFromUser = json.result.level;
+    setUserLevel(levelFromUser); // ✅ 이후에 단어 fetch로 연결됨
+  };
+
+  fetchUserInfo();
+}, []);
+
+  // ✅ API 호출
+  useEffect(() => {
+    if (userLevel === null) return;
+
+    const fetchWords = async () => {
+      const token = localStorage.getItem("accessToken"); // ✅ 토큰 꺼내기
+  
+      const res = await fetch("http://localhost:8080/api/words/random", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ 헤더에 토큰 넣기
+        },
+        body: JSON.stringify({ level: userLevel })
+
+      });
+
+      const json = await res.json();
+      const result: ApiWord[] = json.result;
+
+      const cleaned: WordItem[] = result.map((item) => ({
+        word: item.term,
+        meaning: cleanMeaning(item.meaning),
+      }));
+
+      setWords(cleaned);
+      setShuffledWords(shuffle(cleaned));
+      setShuffledMeanings(shuffle(cleaned));
+    };
+
+    fetchWords();
+  }, []);
+
+  // ✅ 의미에서 품사/기호 제거
+  const cleanMeaning = (raw: string): string => {
+    // "「명사」 의미" → "의미"
+    return raw.replace(/^「[^」]*」\s*/g, "").trim();
+  };
 
   // 타이머 감소
   useEffect(() => {
@@ -73,7 +122,6 @@ const GamePage = () => {
       setShowModal("success");
     }
   }, [matched]);
-  
 
   // 카드 선택
   const handleSelect = (type: "word" | "meaning", value: string) => {
@@ -137,26 +185,40 @@ const GamePage = () => {
         <div className="grid grid-cols-4 gap-3">
           {shuffledWords.map((item) => (
             <button
-            key={item.word}
-            onClick={() => handleSelect("word", item.word)}
-            style={{
-              backgroundColor: "black",
-              backgroundImage: `url(${stone})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-            className={`w-[100px] h-[70px] rounded shadow text-lg brightness-100 hover:brightness-75 transition-all
-              ${matched.includes(item.word) ? "opacity-0 pointer-events-none" : ""}
-              ${selected?.type === "word" && selected.value === item.word ? "ring-4 ring-green-400" : ""}
-              ${justMatched && item.word === justMatched ? "border-4 border-yellow-300 animate-ping-fast" : ""}
-              ${wrongMatch === item.word ? "border-4 border-red-500 animate-shake" : ""}
+              key={item.word}
+              onClick={() => handleSelect("word", item.word)}
+              style={{
+                backgroundColor: "black",
+                backgroundImage: `url(${stone})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+              className={`w-[100px] h-[70px] rounded shadow text-lg brightness-100 hover:brightness-75 transition-all
+              ${
+                matched.includes(item.word)
+                  ? "opacity-0 pointer-events-none"
+                  : ""
+              }
+              ${
+                selected?.type === "word" && selected.value === item.word
+                  ? "ring-4 ring-green-400"
+                  : ""
+              }
+              ${
+                justMatched && item.word === justMatched
+                  ? "border-4 border-yellow-300 animate-ping-fast"
+                  : ""
+              }
+              ${
+                wrongMatch === item.word
+                  ? "border-4 border-red-500 animate-shake"
+                  : ""
+              }
             `}
-          >
-            {item.word}
-          </button>
-          
-          
+            >
+              {item.word}
+            </button>
           ))}
         </div>
 
@@ -170,16 +232,16 @@ const GamePage = () => {
 
             return (
               <button
-  key={item.meaning}
-  onClick={() => handleSelect("meaning", item.meaning)}
-  style={{
-    backgroundColor: "black",
-    backgroundImage: `url(${stone})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  }}
-  className={`w-[250px] h-[48px] rounded shadow text-middle px-3 brightness-100 hover:brightness-75 transition-all
+                key={item.meaning}
+                onClick={() => handleSelect("meaning", item.meaning)}
+                style={{
+                  backgroundColor: "black",
+                  backgroundImage: `url(${stone})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+                className={`w-[250px] h-[48px] rounded shadow text-middle px-3 brightness-100 hover:brightness-75 transition-all
     ${isMatched ? "opacity-0 pointer-events-none" : ""}
     ${
       selected?.type === "meaning" && selected.value === item.meaning
@@ -198,10 +260,9 @@ const GamePage = () => {
         : ""
     }
   `}
->
-  {item.meaning}
-</button>
-
+              >
+                {item.meaning}
+              </button>
             );
           })}
         </div>
@@ -245,7 +306,6 @@ const GamePage = () => {
         </div>
       )}
     </div>
-
   );
 };
 
