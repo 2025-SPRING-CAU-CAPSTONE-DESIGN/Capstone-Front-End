@@ -9,15 +9,45 @@ const StoryPage = () => {
   ]);
   const [input, setInput] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() === "") return;
+
+    // 먼저 사용자의 입력을 채팅창에 추가
     setMessages((prev) => [...prev, { sender: "user", text: input }]);
+    const userInput = input;
     setInput("");
+
+    try {
+      const res = await fetch(
+        "https://767a-165-194-17-158.ngrok-free.app/generate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ input: userInput }), // ← 보내는 데이터 구조는 백엔드에 맞게 조정
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("응답 실패");
+      }
+
+      const data = await res.json();
+      const cleanText = data.response.replaceAll('"', '');
+      setMessages((prev) => [...prev, { sender: "ai", text: cleanText }]);
+      
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "응답을 불러오지 못했어요. 다시 시도해볼래?" },
+      ]);
+    }
   };
 
   return (
     <div className="relative min-h-screen bg-black flex flex-col font-ansim pt-[120px] p-6 overflow-hidden">
-      
       {/* ✅ 반투명 배경 이미지 */}
       <img
         src={forestBg}
@@ -31,7 +61,9 @@ const StoryPage = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex ${msg.sender === "ai" ? "justify-start" : "justify-end"} items-center gap-4`}
+              className={`flex ${
+                msg.sender === "ai" ? "justify-start" : "justify-end"
+              } items-center gap-4`}
             >
               {msg.sender === "ai" && (
                 <img src={fairy} alt="AI" className="w-25 h-24 rounded-full" />
@@ -60,7 +92,9 @@ const StoryPage = () => {
             placeholder="이야기를 이어서 써보세요..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
           />
           <button
             onClick={handleSend}
