@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import forestBg from "../assets/forest_bg2.jpg";
 import stone from "../assets/stone.png";
 import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const TOTAL_TIME = 90;
 
@@ -40,29 +41,13 @@ const GamePage = () => {
   const [showModal, setShowModal] = useState<"timeout" | "success" | null>(
     null
   );
+  const [searchParams] = useSearchParams();
+  const levelParam = searchParams.get("level");
+  const parsedLevel = levelParam ? parseInt(levelParam, 10) : null;
+
+  const [userLevel, setUserLevel] = useState<number | null>(parsedLevel);
   
 const location = useLocation();
-const [userLevel, setUserLevel] = useState<number | null>(null);
-
-// ✅ 1. 사용자 정보 받아서 level 가져오기
-useEffect(() => {
-  const fetchUserInfo = async () => {
-    const token = localStorage.getItem("accessToken");
-
-    const res = await fetch("http://localhost:8080/user", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const json = await res.json();
-    const levelFromUser = json.result.level;
-    setUserLevel(levelFromUser); // ✅ 이후에 단어 fetch로 연결됨
-  };
-
-  fetchUserInfo();
-}, []);
 
   // ✅ API 호출
   useEffect(() => {
@@ -70,6 +55,8 @@ useEffect(() => {
 
     const fetchWords = async () => {
       const token = localStorage.getItem("accessToken"); // ✅ 토큰 꺼내기
+      console.log("token", token);
+      console.log("userLevel", userLevel);
   
       const res = await fetch("http://localhost:8080/api/words/random", {
         method: "POST",
@@ -95,7 +82,7 @@ useEffect(() => {
     };
 
     fetchWords();
-  }, []);
+  }, [userLevel]);
 
   // ✅ 의미에서 품사/기호 제거
   const cleanMeaning = (raw: string): string => {
@@ -118,10 +105,11 @@ useEffect(() => {
   }, [time, matched]);
 
   useEffect(() => {
-    if (matched.length === words.length) {
+    if (words.length > 0 && matched.length === words.length) {
       setShowModal("success");
     }
-  }, [matched]);
+  }, [matched, words]);
+  
 
   // 카드 선택
   const handleSelect = (type: "word" | "meaning", value: string) => {

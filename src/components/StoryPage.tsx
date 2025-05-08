@@ -19,7 +19,7 @@ const StoryPage = () => {
 
     try {
       const res = await fetch(
-        "https://6125-165-194-17-158.ngrok-free.app/generate",
+        "https://8d89-165-194-17-158.ngrok-free.app/generate",
         {
           method: "POST",
           headers: {

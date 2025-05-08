@@ -28,8 +28,10 @@ const LoginPage = () => {
       console.log("로그인 성공:", data);
 
       // 예: 토큰 저장, 페이지 이동 등
-      localStorage.setItem("token", data.accesstoken);
+      localStorage.setItem("accessToken", data.result.accessToken);
+      console.log("accessToken:", localStorage.getItem("accessToken"));
       navigate("/"); // 로그인 성공 시 이동할 페이지
+      window.location.reload();
     } catch (err) {
       console.error("로그인 중 오류 발생:", err);
       alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.");

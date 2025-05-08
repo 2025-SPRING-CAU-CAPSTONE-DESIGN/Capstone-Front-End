@@ -10,15 +10,35 @@ const JoinPage = () => {
   const [isPasswordMismatch, setIsPasswordMismatch] = useState(false);
   const [birthDate, setBirthDate] = useState("");
 
-  // 닉네임 중복 확인 (임시 로직)
-  const handleCheckNickname = () => {
-    // 예시: "taken"이라는 닉네임은 중복 처리
-    if (nickname.toLowerCase() === "taken") {
-      setIsNicknameTaken(true);
-    } else {
-      setIsNicknameTaken(false);
+  const handleCheckNickname = async () => {
+    if (!nickname) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+  
+    try {
+      const res = await fetch(`http://localhost:8080/users/${nickname}/check`);
+  
+      if (res.status === 200) {
+        setIsNicknameTaken(false); // 닉네임 사용 가능
+        alert("사용 가능한 닉네임입니다.");
+      } else if (res.status === 400) {
+        const errJson = await res.json();
+        setIsNicknameTaken(true); // 닉네임 사용 불가
+        alert(errJson.message || "이미 사용 중인 닉네임입니다.");
+      } else {
+        // 그 외의 상태 코드에 대한 처리
+        setIsNicknameTaken(true);
+        alert("알 수 없는 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    } catch (err) {
+      console.error("닉네임 중복 확인 실패:", err);
+      alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
+  
+  
+
 
   // 비밀번호 일치 여부 확인
   const handlePasswordChange = (value: string) => {

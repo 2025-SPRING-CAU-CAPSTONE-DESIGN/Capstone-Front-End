@@ -1,20 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useEffect } from "react";
 import forestBg from "../assets/forest_bg2.jpg";
 
-const GameLoadingPage = () => {
-  const navigate = useNavigate();
-  const [level, setLevel] = useState<number | null>(null);
 
-  const handleStart = () => {
-    if (level === null) {
-      alert("레벨을 선택해주세요!");
+const GameLoadingPage = () => {
+  const [level, setLevel] = useState<number | null>(null);
+const navigate = useNavigate();
+
+// ✅ 최상단 useEffect: 마운트 시 유저 정보 불러오기
+useEffect(() => {
+  const fetchUserInfo = async () => {
+    const token = localStorage.getItem("accessToken");
+    const res = await fetch("http://localhost:8080/user", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error("유저 정보 불러오기 실패");
       return;
     }
 
-    // level과 함께 이동
-    navigate(`/gamepage?level=${level}`);
+    const json = await res.json();
+    const levelFromUser = json.result.level;
+    setLevel(levelFromUser);
   };
+
+  fetchUserInfo();
+}, []);
+
+// ✅ 클릭 시 level이 있으면 이동
+const handleStart = () => {
+  if (level === null) {
+    alert("레벨 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
+    return;
+  }
+
+  navigate(`/gamepage?level=${level}`);
+};
+
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center font-ansim px-4">
