@@ -2,21 +2,64 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import forestBg from "../assets/forest_bg2.jpg";
 
-const TOTAL_TIME = 90; // 1분 30초
+const TOTAL_TIME = 90;
 
 const SentencePage = () => {
   const [input, setInput] = useState("");
   const [time, setTime] = useState(TOTAL_TIME);
-  const [words, setWords] = useState<string[]>([]); // 👈 API에서 불러온 단어 리스트
+  const [words, setWords] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
 
-  const handleSubmit = () => {
+  // ✅ 모달용 상태 추가
+  const [score, setScore] = useState<number | null>(null);
+  const [scoreModalOpen, setScoreModalOpen] = useState(false);
+
+  const handleSubmit = async () => {
     if (input.trim() === "") return;
-    console.log("제출한 문장:", input);
-    setInput("");
+
+    const level = searchParams.get("level");
+    if (!level) {
+      alert("레벨 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/api/sentence/score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          level: Number(level),
+          words: words,
+          sentenceText: input,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("채점 요청 실패:", res.status, errText);
+        alert("채점 실패: 서버 응답 오류");
+        return;
+      }
+
+      const json = await res.json();
+
+      if (json.isSuccess && json.result?.totalScore !== undefined) {
+        setScore(json.result.totalScore);      // 점수 저장
+        setScoreModalOpen(true);               // 모달 열기
+      } else {
+        alert("채점 실패: 서버 처리 실패");
+      }
+
+      setInput("");
+    } catch (error) {
+      console.error("채점 중 에러:", error);
+      alert("서버 오류가 발생했습니다.");
+    }
   };
 
-  // ✅ 타이머 감소
   useEffect(() => {
     const timer = setInterval(() => {
       setTime((prev) => (prev > 0 ? prev - 1 : 0));
@@ -24,7 +67,6 @@ const SentencePage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // ✅ 게임 시작 시 단어 요청
   useEffect(() => {
     const fetchWords = async () => {
       const level = searchParams.get("level");
@@ -34,13 +76,13 @@ const SentencePage = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:8080/word/sentence", {
+        const res = await fetch("http://localhost:8080/api/sentence/random", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // ✅ 헤더에 토큰 넣기
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          body: JSON.stringify({ level: Number(level) }),
+          body: JSON.stringify({ level: level }),
         });
 
         const json = await res.json();
@@ -61,7 +103,7 @@ const SentencePage = () => {
 
   return (
     <div className="relative min-h-screen bg-black font-ansim overflow-hidden flex flex-col items-center pt-[120px] px-8">
-      {/* 고정된 배경 이미지 */}
+      {/* 배경 이미지 */}
       <div className="fixed inset-0 z-0">
         <img
           src={forestBg}
@@ -73,10 +115,7 @@ const SentencePage = () => {
       {/* 메인 콘텐츠 */}
       <div className="relative z-10 flex flex-col items-center space-y-10 w-full max-w-6xl">
 
-        {/* 타이틀 */}
-        <h1 className="text-3xl font-bold text-green-400 mb-4">
-          이번 이야기 단어
-        </h1>
+        <h1 className="text-3xl font-bold text-green-400 mb-4">이번 이야기 단어</h1>
 
         {/* 단어 박스 */}
         <div className="flex gap-4 flex-wrap justify-center">
@@ -124,8 +163,25 @@ const SentencePage = () => {
             남은 시간: {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
           </p>
         </div>
-
       </div>
+
+      {/* ✅ 채점 결과 모달 */}
+      {scoreModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-xl shadow-xl text-center">
+            <h2 className="text-2xl text-green-500 font-bold">채점 결과</h2>
+            <p className="text-white mt-4 text-xl">
+              당신의 점수는 <span className="text-yellow-400">{score}</span>점입니다!
+            </p>
+            <button
+              className="mt-6 bg-green-500 hover:bg-green-400 text-white px-6 py-2 rounded-full"
+              onClick={() => setScoreModalOpen(false)}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
