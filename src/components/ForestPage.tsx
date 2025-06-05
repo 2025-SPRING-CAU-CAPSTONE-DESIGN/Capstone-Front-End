@@ -377,7 +377,6 @@ const ForestPage: React.FC = () => {
                     </h3>
                     <p className="mb-1">제목: {selectedStory.title}</p>
                     <p className="mb-1">내용: {selectedStory.content}</p>
-                    <p className="mb-1">점수: {selectedStory.score}점</p>
                   </div>
                 );
               }

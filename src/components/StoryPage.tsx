@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import fairy from "../assets/fairy.png";
 import forestBg from "../assets/forest_bg2.jpg"; // 배경 이미지 추가
@@ -8,6 +8,43 @@ const StoryPage = () => {
     { sender: "ai", text: "나랑 같이 동화를 만들자! 먼저 시작해줘!" },
   ]);
   const [input, setInput] = useState("");
+  const [userId, setUserId] = useState("");
+  const [storyId, setStoryId] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [title, setTitle] = useState(""); // 사용자가 직접 제목을 입력하거나 자동 생성 가능
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("❌ 토큰이 없습니다.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8080/user", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok && data.isSuccess) {
+          console.log("✅ 사용자 정보:", data.result);
+          setUserId(data.result.id); // 필요하면 저장
+        } else {
+          console.error("❌ 사용자 정보 요청 실패:", data.message);
+        }
+      } catch (error) {
+        console.error("❌ 사용자 정보 요청 중 에러:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const handleSend = async () => {
     if (input.trim() === "") return;
@@ -19,13 +56,18 @@ const StoryPage = () => {
 
     try {
       const res = await fetch(
-        "https://8d89-165-194-17-158.ngrok-free.app/generate",
+        "https://4eb8-165-194-17-158.ngrok-free.app/generate",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ input: userInput }), // ← 보내는 데이터 구조는 백엔드에 맞게 조정
+          body: JSON.stringify({
+            user_id: userId, // 필요 시 동적으로 대체 가능
+            book_num: 1402, // 필요 시 선택된 책 번호 등으로 대체 가능
+            input: userInput,
+            max_new_tokens: 200,
+          }),
         }
       );
 
@@ -34,9 +76,8 @@ const StoryPage = () => {
       }
 
       const data = await res.json();
-      const cleanText = data.response.replaceAll('"', '');
+      const cleanText = data.response.replaceAll('"', "");
       setMessages((prev) => [...prev, { sender: "ai", text: cleanText }]);
-      
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
@@ -46,16 +87,62 @@ const StoryPage = () => {
     }
   };
 
+  const handleFinishStory = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const fullContent = messages
+      .slice(1) // 👉 첫 번째 메시지("AI: 나랑 같이 동화를 만들자!") 제거
+      .map((msg) => msg.text) // 👉 sender 제거하고 순수한 text만 저장
+      .join("\n");
+
+    if (!title.trim()) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const res = await fetch("http://localhost:8080/api/stories", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          content: fullContent,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.isSuccess) {
+        alert("🎉 동화가 저장되었어요!");
+      } else {
+        console.error("동화 저장 실패:", data.message);
+        alert("저장 실패: " + data.message);
+      }
+    } catch (err) {
+      console.error("에러:", err);
+      alert("서버 오류가 발생했어요.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-black flex flex-col font-ansim pt-[120px] p-6 overflow-hidden">
-      {/* ✅ 반투명 배경 이미지 */}
+      {/* 배경 이미지 */}
       <img
         src={forestBg}
         alt="Forest Background"
-        className="absolute inset-0 w-full h-full object-cover opacity-20 z-0"
+        className="fixed top-0 left-0 w-full h-full object-cover opacity-20 z-0"
       />
 
-      {/* ✅ 메인 콘텐츠는 z-10 */}
+      {/* 메인 콘텐츠 */}
       <div className="flex-1 flex flex-col items-center z-10">
         <div className="w-full max-w-6xl flex-1 overflow-y-auto mb-4 space-y-6 px-8">
           {messages.map((msg, idx) => (
@@ -102,7 +189,46 @@ const StoryPage = () => {
           >
             보내기
           </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-full transition"
+          >
+            동화 완성
+          </button>
         </div>
+
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-[400px] text-black relative shadow-xl">
+              <button
+                className="absolute top-2 right-4 text-xl font-bold"
+                onClick={() => setShowModal(false)}
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-4 text-green-600">
+                동화 제목을 입력하세요
+              </h2>
+              <input
+                type="text"
+                className="w-full px-4 py-2 rounded border border-gray-300 mb-4"
+                placeholder="예: 모험을 떠난 고양이"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  handleFinishStory();
+                }}
+                disabled={isSaving}
+                className="w-full bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded"
+              >
+                {isSaving ? "저장 중..." : "완성하기"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

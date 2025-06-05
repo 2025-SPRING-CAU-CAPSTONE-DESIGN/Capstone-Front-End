@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import forestBg from "../assets/forest_bg2.jpg";
 
-const TOTAL_TIME = 90;
 
 const SentencePage = () => {
   const [input, setInput] = useState("");
-  const [time, setTime] = useState(TOTAL_TIME);
   const [words, setWords] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
 
@@ -55,13 +53,6 @@ if (resJson.isSuccess) {
 
 
   };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTime((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -145,19 +136,6 @@ if (resJson.isSuccess) {
           >
             제출하기
           </button>
-        </div>
-
-        {/* 시간바 */}
-        <div className="w-full mt-8 px-4">
-          <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-green-400 transition-all duration-1000"
-              style={{ width: `${(time / TOTAL_TIME) * 100}%` }}
-            />
-          </div>
-          <p className="text-center text-sm mt-2 text-gray-300">
-            남은 시간: {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
-          </p>
         </div>
       </div>
 

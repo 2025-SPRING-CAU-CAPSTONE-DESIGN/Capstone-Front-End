@@ -76,12 +76,8 @@ const MyActivity = () => {
           className="bg-gray-800/60 rounded-xl p-6 w-[20vw] h-[70vh] shadow text-white hover:bg-gray-700 transition"
         >
           <h2 className="text-3xl font-bold text-green-400 mb-10 mt-2 text-center">내 이야기숲 보기</h2>
-          <h3 className="text-xl font-bold text-green-300 mb-4">최근 작성한 이야기</h3>
           <p className="text-lg text-gray-300 leading-8">
-            ✏️ “용감한 토끼의 모험”<br />
-            ✏️ “바다 괴물의 비밀”<br />
-            ✏️ “시간 여행을 떠난 아이”<br />
-            ✏️ “잃어버린 마법의 돌”
+            내가 만든 이야기들은 어떤 이야기 숲을 이루었을까?
           </p>
         </Link>
 
@@ -92,9 +88,8 @@ const MyActivity = () => {
         >
           <h2 className="text-3xl font-bold text-green-400 mb-10 mt-2 text-center">내 친구 보기</h2>
           <p className="text-lg text-gray-300 leading-8">
-            👥 총 친구: 4명<br />
-            최근 추가: 김영희, 이민지<br />
-            대기 중 요청: 2건
+            친구를 추가하고
+            친구가 만든 이야기를 볼 수 있어요!<br />
           </p>
         </Link>
 
@@ -103,7 +98,7 @@ const MyActivity = () => {
           to="/myLevel"
           className="bg-gray-800/60 rounded-xl p-6 w-[20vw] h-[70vh] shadow text-white hover:bg-gray-700 transition"
         >
-          <h2 className="text-3xl font-bold text-green-400 mb-10 mt-2 text-center">내 레벨 보기</h2>
+          <h2 className="text-3xl font-bold text-green-400 mb-10 mt-2 text-center">내 레벨</h2>
           <p className="text-lg text-gray-300 mb-4 leading-8">
             🌱 {tierNames[tier - 1]} 단계<br />
             다음 단계까지 {100 - progressPercent}% 남음
