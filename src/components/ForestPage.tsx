@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import forestBg from "../assets/forest_bg2.jpg";
 import tree from "../assets/tree.svg";
 import leaf1 from "../assets/leaf_1.svg";
@@ -161,12 +162,18 @@ const ForestPage: React.FC = () => {
     content: string;
     score: number;
   } | null>(null);
+  const [searchParams] = useSearchParams();
+  const username = searchParams.get("username");
 
   useEffect(() => {
     const getStoryCount = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const response = await fetch("http://localhost:8080/users/tier", {
+        const endpoint = username
+          ? `http://localhost:8080/users/${username}/tier`
+          : `http://localhost:8080/users/tier`;
+
+        const response = await fetch(endpoint, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -198,26 +205,29 @@ const ForestPage: React.FC = () => {
   }, [storyCount]);
 
   useEffect(() => {
-  if (selectedModalIndex !== null) {
-    const tierThreshold = 5;
-    const ownedCount = Math.min(
-      Math.max(storyCount - selectedModalIndex * tierThreshold, 0),
-      5
-    );
-    if (ownedCount > 0) {
-      const firstStoryId = selectedModalIndex * tierThreshold + 1;
-      fetchStoryDetail(firstStoryId);
-    } else {
-      setSelectedStory(null); // 이야기 없을 땐 초기화
+    if (selectedModalIndex !== null) {
+      const tierThreshold = 5;
+      const ownedCount = Math.min(
+        Math.max(storyCount - selectedModalIndex * tierThreshold, 0),
+        5
+      );
+      if (ownedCount > 0) {
+        const firstStoryId = selectedModalIndex * tierThreshold + 1;
+        fetchStoryDetail(firstStoryId);
+      } else {
+        setSelectedStory(null); // 이야기 없을 땐 초기화
+      }
     }
-  }
-}, [selectedModalIndex]);
-
+  }, [selectedModalIndex]);
 
   const fetchStoryDetail = async (storyId: number) => {
     const token = localStorage.getItem("accessToken");
     try {
-      const response = await fetch(`http://localhost:8080/users/${storyId}/story`, {
+      const endpoint = username
+        ? `http://localhost:8080/users/${username}/story/${storyId}`
+        : `http://localhost:8080/users/${storyId}/story`;
+
+      const response = await fetch(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -277,7 +287,6 @@ const ForestPage: React.FC = () => {
       {selectedModalIndex !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
           <div className="bg-gray-800 w-[80%] h-[80%] rounded-xl shadow-xl p-8 relative overflow-y-auto">
-
             {/* 닫기 버튼 */}
             <button
               onClick={() => {
@@ -298,8 +307,16 @@ const ForestPage: React.FC = () => {
             <div className="flex justify-center gap-4 mb-8">
               {(() => {
                 const tierOrder = [
-                  'leaf', 'acorn', 'blue', 'red', 'apple',
-                  'strawberry', 'cherry', 'peach', 'candy', 'star'
+                  "leaf",
+                  "acorn",
+                  "blue",
+                  "red",
+                  "apple",
+                  "strawberry",
+                  "cherry",
+                  "peach",
+                  "candy",
+                  "star",
                 ];
                 const currentTier = tierOrder[selectedModalIndex];
                 const tierThreshold = 5;
@@ -313,10 +330,14 @@ const ForestPage: React.FC = () => {
                 return Array.from({ length: 5 }).map((_, i) => {
                   const isUnlocked = i < ownedCount;
                   const isLastUnlocked =
-                    selectedStory && selectedStory.storyId === (selectedModalIndex * tierThreshold + i + 1);
+                    selectedStory &&
+                    selectedStory.storyId ===
+                      selectedModalIndex * tierThreshold + i + 1;
 
                   const sizeClass = isLastUnlocked ? "w-40 h-40" : "w-24 h-24";
-                  const opacityClass = isUnlocked ? "opacity-100" : "opacity-30";
+                  const opacityClass = isUnlocked
+                    ? "opacity-100"
+                    : "opacity-30";
                   const storyId = selectedModalIndex * tierThreshold + i + 1;
 
                   return (
@@ -351,7 +372,9 @@ const ForestPage: React.FC = () => {
               if (selectedStory) {
                 return (
                   <div className="text-white text-center">
-                    <h3 className="text-2xl mb-2">나의 {selectedStory.storyId}번째 이야기</h3>
+                    <h3 className="text-2xl mb-2">
+                      나의 {selectedStory.storyId}번째 이야기
+                    </h3>
                     <p className="mb-1">제목: {selectedStory.title}</p>
                     <p className="mb-1">내용: {selectedStory.content}</p>
                     <p className="mb-1">점수: {selectedStory.score}점</p>

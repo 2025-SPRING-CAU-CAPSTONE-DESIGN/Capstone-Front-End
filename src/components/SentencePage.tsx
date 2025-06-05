@@ -11,7 +11,7 @@ const SentencePage = () => {
   const [searchParams] = useSearchParams();
 
   // ✅ 모달용 상태 추가
-  const [score, setScore] = useState<number | null>(null);
+const [feedback, setFeedback] = useState<string | null>(null);
   const [scoreModalOpen, setScoreModalOpen] = useState(false);
 
   const handleSubmit = async () => {
@@ -24,40 +24,36 @@ const SentencePage = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/sentence/score", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({
-          level: Number(level),
-          words: words,
-          sentenceText: input,
-        }),
-      });
+  const res = await fetch("http://localhost:8080/api/sentence/score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+    body: JSON.stringify({
+      level: Number(level),
+      words: words,
+      sentenceText: input,
+    }),
+  });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("채점 요청 실패:", res.status, errText);
-        alert("채점 실패: 서버 응답 오류");
-        return;
-      }
+  const resJson = await res.json();
 
-      const json = await res.json();
+if (resJson.isSuccess) {
+  const feedback = resJson.result.feedback;
+  console.log("✅ 피드백:", feedback);
 
-      if (json.isSuccess && json.result?.totalScore !== undefined) {
-        setScore(json.result.totalScore);      // 점수 저장
-        setScoreModalOpen(true);               // 모달 열기
-      } else {
-        alert("채점 실패: 서버 처리 실패");
-      }
+  setFeedback(feedback);            // ✅ 피드백 저장
+  setScoreModalOpen(true);          // ✅ 모달 열기
+}
+ else {
+    console.warn("⚠ 실패:", resJson.message);
+  }
+} catch (error) {
+  console.error("❌ 요청 중 에러 발생:", error);
+}
 
-      setInput("");
-    } catch (error) {
-      console.error("채점 중 에러:", error);
-      alert("서버 오류가 발생했습니다.");
-    }
+
   };
 
   useEffect(() => {
@@ -166,22 +162,24 @@ const SentencePage = () => {
       </div>
 
       {/* ✅ 채점 결과 모달 */}
-      {scoreModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-8 rounded-xl shadow-xl text-center">
-            <h2 className="text-2xl text-green-500 font-bold">채점 결과</h2>
-            <p className="text-white mt-4 text-xl">
-              당신의 점수는 <span className="text-yellow-400">{score}</span>점입니다!
-            </p>
-            <button
-              className="mt-6 bg-green-500 hover:bg-green-400 text-white px-6 py-2 rounded-full"
-              onClick={() => setScoreModalOpen(false)}
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
+      {scoreModalOpen && feedback && (
+  <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div className="bg-gray-800 p-8 rounded-xl shadow-xl text-center max-w-md">
+      <h2 className="text-2xl text-green-500 font-bold">피드백</h2>
+      <p className="text-white mt-6 text-xl whitespace-pre-wrap">{feedback}</p>
+      <button
+        className="mt-8 bg-green-500 hover:bg-green-400 text-white px-6 py-2 rounded-full"
+        onClick={() => {
+          setScoreModalOpen(false);
+          setFeedback(null);
+        }}
+      >
+        확인
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
