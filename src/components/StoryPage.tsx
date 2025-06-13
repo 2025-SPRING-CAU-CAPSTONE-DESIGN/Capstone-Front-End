@@ -13,6 +13,8 @@ const StoryPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [title, setTitle] = useState(""); // 사용자가 직접 제목을 입력하거나 자동 생성 가능
   const [showModal, setShowModal] = useState(false);
+  const address = "https://8980-165-194-17-158.ngrok-free.app/";
+  const storynum = 1332 // 예시로 고정된 책 번호 사용
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -46,6 +48,37 @@ const StoryPage = () => {
     fetchUserInfo();
   }, []);
 
+  const handleStartStory = async () => {
+  try {
+    const res = await fetch(`${address}suggestions`, {
+      method: "POST", // or GET, depending on your API
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        book_num: storynum,
+      }),
+    });
+
+    const data = await res.json();
+    const cleanText = data.response.replaceAll('"', '');
+
+    // 👉 AI 메시지로 추가
+    setMessages((prev) => [...prev, { sender: "ai", text: cleanText }]);
+  } catch (err) {
+    console.error("❌ 시작 응답 에러:", err);
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "ai",
+        text: "이야기를 시작할 수 없었어요. 다시 시도해볼래?",
+      },
+    ]);
+  }
+};
+
+
   const handleSend = async () => {
     if (input.trim() === "") return;
 
@@ -56,7 +89,7 @@ const StoryPage = () => {
 
     try {
       const res = await fetch(
-        "https://4eb8-165-194-17-158.ngrok-free.app/generate",
+        `${address}generate`,
         {
           method: "POST",
           headers: {
@@ -64,8 +97,8 @@ const StoryPage = () => {
           },
           body: JSON.stringify({
             user_id: userId, // 필요 시 동적으로 대체 가능
-            book_num: 1402, // 필요 시 선택된 책 번호 등으로 대체 가능
-            input: userInput,
+            book_num: storynum, // 필요 시 선택된 책 번호 등으로 대체 가능
+            input: `"${userInput}"`,
             max_new_tokens: 200,
           }),
         }
@@ -83,6 +116,37 @@ const StoryPage = () => {
       setMessages((prev) => [
         ...prev,
         { sender: "ai", text: "응답을 불러오지 못했어요. 다시 시도해볼래?" },
+      ]);
+    }
+  };
+
+  const handleContinue = async () => {
+    try {
+      const res = await fetch(
+        `${address}generate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            book_num: storynum,
+            input: " ", // 입력 없이 continuation 요청
+            max_new_tokens: 200,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("응답 실패");
+      const data = await res.json();
+      const cleanText = data.response.replaceAll('"', "");
+      setMessages((prev) => [...prev, { sender: "ai", text: cleanText }]);
+    } catch (err) {
+      console.error("❌ 계속 만들기 에러:", err);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "이야기를 이어서 만들 수 없었어요 😢" },
       ]);
     }
   };
@@ -155,6 +219,7 @@ const StoryPage = () => {
               {msg.sender === "ai" && (
                 <img src={fairy} alt="AI" className="w-25 h-24 rounded-full" />
               )}
+
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -167,6 +232,23 @@ const StoryPage = () => {
               >
                 {msg.text}
               </motion.div>
+
+              {msg.sender === "ai" && idx === 0 && (
+                <button
+                  onClick={handleStartStory}
+                  className="ml-2 text-sm bg-white text-green-600 px-3 py-1 rounded-full shadow hover:bg-green-100"
+                >
+                  먼저 시작해줘!
+                </button>
+              )}
+              {msg.sender === "ai" && idx > 0 && (
+                <button
+                  onClick={handleContinue}
+                  className="ml-2 text-sm bg-white text-blue-600 px-3 py-1 rounded-full shadow hover:bg-blue-100"
+                >
+                  계속 만들어줘!
+                </button>
+              )}
             </div>
           ))}
         </div>

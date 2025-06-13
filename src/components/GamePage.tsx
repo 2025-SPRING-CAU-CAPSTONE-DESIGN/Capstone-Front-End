@@ -4,7 +4,7 @@ import stone from "../assets/stone.png";
 import { useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
-const TOTAL_TIME = 90;
+const TOTAL_TIME = 20;
 
 type WordItem = {
   word: string;

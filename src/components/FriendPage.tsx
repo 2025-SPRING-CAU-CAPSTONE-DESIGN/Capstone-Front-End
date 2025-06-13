@@ -184,6 +184,8 @@ const FriendPage = () => {
       <div className="flex justify-center items-start gap-20">
         {/* 친구 리스트 */}
         <div className="bg-gray-800 p-6 rounded-xl shadow-md w-[300px]">
+          내 친구 목록
+          <br/>
           {friends.map((friend) => (
             <div
               key={friend}

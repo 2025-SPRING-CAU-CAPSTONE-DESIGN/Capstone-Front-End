@@ -94,8 +94,7 @@ const MyActivity = () => {
         </Link>
 
         {/* 내 레벨 보기 */}
-        <Link
-          to="/myLevel"
+        <div
           className="bg-gray-800/60 rounded-xl p-6 w-[20vw] h-[70vh] shadow text-white hover:bg-gray-700 transition"
         >
           <h2 className="text-3xl font-bold text-green-400 mb-10 mt-2 text-center">내 레벨</h2>
@@ -113,7 +112,7 @@ const MyActivity = () => {
           {storiesToNext > 0
             ? `${storiesToNext}개의 이야기를 더 만들고 ${tierNames[tier]} 단계로 올라가요!`
             : "최고 티어에 도달했어요! ✨"}
-        </Link>
+        </div>
       </div>
     </div>
   );
