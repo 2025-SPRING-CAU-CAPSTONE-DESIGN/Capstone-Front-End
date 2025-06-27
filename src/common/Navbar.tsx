@@ -2,10 +2,8 @@ import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-  const accessToken = localStorage.getItem('accessToken');  // localStorage에서 accessToken 가져오기
-
   const handleLogout = () => {
-    // 로그아웃 시 로컬스토리지에서 accessToken 제거
+    // 로그아웃 시 로컬스토리지에서 토큰 제거
     localStorage.removeItem('accessToken');
     // 로그아웃 후 홈 페이지로 이동하고 새로고침
     window.location.href = '/';

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import forestBg from "../assets/forest_bg2.jpg";
 import stone from "../assets/stone.png";
-import { useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 const TOTAL_TIME = 20;
