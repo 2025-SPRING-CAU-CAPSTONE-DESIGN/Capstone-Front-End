@@ -9,12 +9,11 @@ const StoryPage = () => {
   ]);
   const [input, setInput] = useState("");
   const [userId, setUserId] = useState("");
-  const [storyId, setStoryId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [title, setTitle] = useState(""); // 사용자가 직접 제목을 입력하거나 자동 생성 가능
   const [showModal, setShowModal] = useState(false);
-  const address = "https://8980-165-194-17-158.ngrok-free.app/";
-  const storynum = 1332 // 예시로 고정된 책 번호 사용
+  const address = "https://90b8-165-194-17-158.ngrok-free.app/";
+  const [storynum, setStorynum] = useState(1204);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -185,6 +184,7 @@ const StoryPage = () => {
       const data = await res.json();
       if (res.ok && data.isSuccess) {
         alert("🎉 동화가 저장되었어요!");
+        setStorynum((prev) => prev + 1); // storynum 1 증가
       } else {
         console.error("동화 저장 실패:", data.message);
         alert("저장 실패: " + data.message);

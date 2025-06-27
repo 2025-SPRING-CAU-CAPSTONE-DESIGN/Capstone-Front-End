@@ -170,11 +170,6 @@ const FriendPage = () => {
     setRequests((prev) => prev.filter((r) => r.requestId !== requestId));
   };
 
-  const handleViewFriendForest = (friendName: string) => {
-    // 친구의 숲 페이지로 이동
-    navigate(`/forest?username=${friendName}`);
-  };
-
   return (
     <div className="min-h-screen bg-black text-white p-10 font-ansim">
       <h1 className="text-green-400 text-3xl font-bold text-center font-ansim2 mb-10">

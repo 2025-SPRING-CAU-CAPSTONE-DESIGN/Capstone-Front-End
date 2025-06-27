@@ -3,11 +3,6 @@ import fairy from "../assets/fairy.png";
 import forestBg from "../assets/forest_bg2.jpg"; // ✅ 배경 이미지 import
 import "../index.css";
 
-const colors = [
-  "from-pink-400 via-yellow-300 to-green-400",
-  "from-green-400 via-blue-400 to-purple-400",
-  "from-yellow-400 via-red-400 to-pink-400",
-];
 
 const Home = () => {
   const title = "이야기숲";

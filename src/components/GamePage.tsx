@@ -45,9 +45,8 @@ const GamePage = () => {
   const levelParam = searchParams.get("level");
   const parsedLevel = levelParam ? parseInt(levelParam, 10) : null;
 
-  const [userLevel, setUserLevel] = useState<number | null>(parsedLevel);
+  const [userLevel] = useState<number | null>(parsedLevel);
   
-const location = useLocation();
 
   // ✅ API 호출
   useEffect(() => {
