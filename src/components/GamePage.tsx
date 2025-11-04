@@ -3,7 +3,7 @@ import forestBg from "../assets/forest_bg2.jpg";
 import stone from "../assets/stone.png";
 import { useSearchParams } from "react-router-dom";
 
-const TOTAL_TIME = 20;
+const TOTAL_TIME = 300;
 
 type WordItem = {
   word: string;

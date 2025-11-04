@@ -12,7 +12,7 @@ const StoryPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [title, setTitle] = useState(""); // 사용자가 직접 제목을 입력하거나 자동 생성 가능
   const [showModal, setShowModal] = useState(false);
-  const address = "https://90b8-165-194-17-158.ngrok-free.app/";
+  const address = import.meta.env.VITE_API_URL;
   const [storynum, setStorynum] = useState(1204);
 
   useEffect(() => {
